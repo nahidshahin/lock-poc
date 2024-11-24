@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd  http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <flow name="count-v2-main">
+        <http:listener config-ref="HTTP_Listener_config" path="/get">
+        </http:listener>
+		<scripting:execute engine="Groovy" doc:name="Retrieve Clients" doc:id="1d7b68ce-a5e6-4577-87b7-e8c5b87ef216" >
+                    <scripting:code ><![CDATA[registry.lookupByName("VmUtilities").get().getValue()]]></scripting:code>
+                </scripting:execute>
+		<ee:transform doc:name="Transform Message" doc:id="2c8e78d7-d41e-4358-96c8-9ca4e3953a37" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+    </flow>
+
+    <flow name="count-v2-main-inc">
+        <http:listener config-ref="HTTP_Listener_config" path="/inc">
+        </http:listener>
+		<scripting:execute engine="Groovy" doc:name="Retrieve Clients" doc:id="240fe104-454c-4c00-b443-06d05b3f42f7" >
+                    <scripting:code ><![CDATA[registry.lookupByName("VmUtilities").get().incValue()]]></scripting:code>
+                </scripting:execute>
+    </flow>
+    
+    <flow name="count-v2-main-reset">
+        <http:listener config-ref="HTTP_Listener_config" path="/reset">
+        </http:listener>
+		<scripting:execute engine="Groovy" doc:name="Retrieve Clients" doc:id="7776f8aa-71b7-465f-b51d-48bcda1d7809" >
+                    <scripting:code ><![CDATA[registry.lookupByName("VmUtilities").get().resetValue()]]></scripting:code>
+                </scripting:execute>
+    </flow>
+</mule>

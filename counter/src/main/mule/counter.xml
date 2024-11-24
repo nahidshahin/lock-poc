@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="43c20d75-d0e6-47cd-8ac0-e061d83bfb3f" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<os:config name="ObjectStore_Config" doc:name="ObjectStore Config" doc:id="91339868-1cd9-4b86-9605-24cea2251292" />
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="e342d1bf-6951-4cc4-8727-3d3a447d330f" config-ref="ObjectStore_Config" />
+	<flow name="counterFlow" doc:id="31dbebf9-4fad-4d31-b1a1-0e5383991634" >
+		<http:listener doc:name="Listener" doc:id="8138fc87-a62a-4af3-ba64-15f6ec1e0ebf" config-ref="HTTP_Listener_config" path="/inc"/>
+		<flow-ref doc:name="Flow Reference" doc:id="c5e176ae-b3e6-4bef-9c45-acb594b0b7b7" name="get-count"/>
+		<ee:transform doc:name="Transform Message" doc:id="27c20fe9-db74-4fd4-a11d-f1cc62bf1b60" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload + 1]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<os:store doc:name="Store" doc:id="b0bca104-58f1-4dd7-95ba-b99699bdb8e6" key="key" objectStore="Object_store">
+		</os:store>
+	</flow>
+	
+	<flow name="counterFlow1" doc:id="63bfeb39-4ca6-4e35-8179-14b9b5f4f7b8" >
+		<http:listener doc:name="Listener" doc:id="39c73001-afea-4a42-b4a6-c65459f9154e" config-ref="HTTP_Listener_config" path="/reset"/>
+		<ee:transform doc:name="Transform Message" doc:id="0aec6f56-d56b-4faf-ac0c-9ebc2b0440f8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+0]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<os:store doc:name="Store" doc:id="924fcc45-a898-46f3-94ae-c0c452b74dd2" key="key" objectStore="Object_store">
+		</os:store>
+		</flow>
+	<flow name="counterFlow2" doc:id="40dd47b8-6cfb-4636-add2-e7a831a92e01" >
+		<http:listener doc:name="Listener" doc:id="ce1c2e15-5f30-48f5-a02b-d142ec159c95" config-ref="HTTP_Listener_config" path="/get"/>
+		<flow-ref doc:name="Flow Reference" doc:id="9ec0e60a-262d-4f57-bb5f-6d05a4702da9" name="get-count"/>
+		<ee:transform doc:name="Transform Message" doc:id="e4291dc8-cd4f-445d-a5c1-431327edf09b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="get-count" doc:id="0581d127-bdac-46ea-b0b0-ab1f51de332f" >
+		<os:retrieve doc:name="Retrieve" doc:id="8fcbc3c2-70e3-46c3-a066-e443db651ccb" key="key" objectStore="Object_store">
+			<os:default-value ><![CDATA[#[0]]]></os:default-value>
+		</os:retrieve>
+	</flow>
+</mule>
