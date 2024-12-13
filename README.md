@@ -1,6 +1,6 @@
 # lock-poc
 poc on mule distributed lock
 
-the counter app doesn't have any lock so it's failing to write in multi thread env.
+the counter application doesn't have any lock so it's failing to write in multi-thread env.
 
-Where as count-v2 has the distributed lock to fix this issue.
+On the other hand, the counter application version 2 (count-v2) has a distributed lock to fix this issue.
